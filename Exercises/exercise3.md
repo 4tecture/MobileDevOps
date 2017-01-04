@@ -190,6 +190,7 @@ The build template, created in [Exercise 2](exercise2.md) has to be changed.
 
 1. Got to build definition
 1. click **Edit** (top-right)
+1. Enable the previously disabled step **Build solution \*\*/*test*.csproj**.
 1. Add new build step
 1. Select Category: Test / Visual Studio Test
 ![Build_Test_1](images/exercise3/Build_Test_1.png "Add Visual Studio Test build step")
