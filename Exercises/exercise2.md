@@ -85,7 +85,10 @@ The code should appear in the *VSTS* repo after the import completed. You can cl
 1. **Clone** the repository<br/>
    ![Select the project](images/exercise2/vs-clone.png)
 1. Try to run the app in the Android Emulator (see [Exercise 1](exercise1.md) for trouble shooting)<br/>
-   **Plan enough time for solving problems with Emulator, Xamarin, NuGet, etc.** 
+   **Plan enough time for solving problems with Emulator, Xamarin, NuGet, etc.**   
+   1. Set the Java Maximum Heap Size to **1G** for Debug and Release configurations.
+   1. Update **Xamarin.Forms** NuGet package (if available)
+   1. If you updated the **Xamarin.Forms** package, please commit und push your changes to your repository before continueing.
 
 ## Build Automation
 1. Without changing any code we can configure our automated build with *VSTS*. 
@@ -109,7 +112,12 @@ You see two columns in your build definition settings: The build steps are liste
 ![Build_Edit_Build_Steps_1](images/exercise2/Build_Edit_Steps_1.png "Edit build definition")
 
 1. Discuss the several steps in the build template
-1. Disable the **Xamarin Test Cloud - Test** step: Select the step and deselect the **Enabled** checkbox in the **Control options** section. We'll add test automation later.
+1. Disable the **Xamarin Test Cloud - Test** step: Select the step and deselect the **Enabled** checkbox in the **Control options** section. We'll add test automation later.</br>
+   Note: The new build template automatically disables this step.
+1. Disable the **Build solution \*\*/*test*.csproj** step.
+1. Change the JDK options of the task **Build Xamarin.Android Project** to JDK 8.
+   ![Build_Select_JDK](images/exercise2/Build_Select_JDK.png "Create new build definition")
+1. Save the build devinition and provide an appropriate name (i.e. CI_Hanselman.Forms).
 1. Click on **Queue new build**, confirm the opened dialog without changing anything and watch the logging information.
 
 ![Build_Start_First_Build](images/exercise2/Build_Start_First_Build.png "Start first build")
