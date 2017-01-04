@@ -19,7 +19,7 @@
 ## Create a new Test Project in Visual Studio
 1. Open **Visual Studio**
 1. Open the **Hanselman.Forms** solution
-1. Add a new **Class Library** Project called "Hanselman.Tests"
+1. Add a new **Class Library** Project called "Hanselman.UI.Tests"
    ![Create a Class Library](images/exercise4/ClassLibraryProject.png)
 1. **Rename** ```Class1.cs``` to ```Tests.cs```
 1. Add **NuGet** packages<br/>
@@ -30,6 +30,7 @@
    * ```Install-Package Xamarin.UITest -Version 1.3.8```
 
    ![Add NuGet packages](images/exercise4/nuget.PNG)
+1. Reference your Android project **Hanselman.Android** by clicking **Add Reference...** on the references of your UI test project.
 
 ## Create your first test
 ```cs
