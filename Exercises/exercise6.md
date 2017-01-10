@@ -189,7 +189,7 @@
     ```
 
 ### Changes in your Android project   
-1. Add the **NuGet** package ```Microsoft.Azure.Mobile.Client``` to your portable project 
+1. Add the **NuGet** package ```Microsoft.Azure.Mobile.Client``` to your Android project 
 1. Open **MainActivity.cs**
 1. Add a private field called **user** and a property **IsAuthenticated**<br/>
 
