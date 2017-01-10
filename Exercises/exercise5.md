@@ -251,7 +251,7 @@ In this step the build is extended with an assembly versioning task. This task i
 1. From the **Build** tab select *Add build step...* and add a new **PowerShell** build task (*Utility > PowerShell > Add*).
 1. Move the build task on top of all other tasks (drag and drop) and set the **Type** and **Script Path** as followed:  
 ![Release_Google_Play_Service_Endpoint](images/exercise5/VSTS_Build_Assembly_Versioning_Task.png "Configure assembly versioning build task")
-1. To provide unique and consecutive version information for the versioning script it is required to change the default *Build number format*. From the **General** tab change the *Build number format* as followed:
+1. To provide unique and consecutive version information for the versioning script it is required to change the default *Build number format*. From the **General** tab change the *Build number format* as followed:  
     ```
     $(Build.DefinitionName)_$(MajorVersion).$(MinorVersion).$(date:yy)$(dayofyear)$(rev:.r)
     ```
@@ -261,7 +261,7 @@ In this step the build is extended with an assembly versioning task. This task i
 
 #### Prepare source files
 1. To automatically version all required source files by the versioning script, it is mandatory to adjust some of the default patterns.
-1. Find all *AndroidManifest.xml* files and set the versionCode and versionName to:
+1. Find all *AndroidManifest.xml* files and set the versionCode and versionName to:  
     ```
     android:versionCode="1" android:versionName="1.0.0"
     ```
@@ -273,7 +273,7 @@ To track telemetric data from an application it is required to react on events o
 
 1. Open the visual studio solution *Hanselman.Forms*
 1. Create a new service interface **IEventTrackingService** (*Project: Hanselman.Portable/Helpers*)
-    ```cs 
+    ```cs
     namespace Hanselman.Portable.Helpers
     {
         public interface IEventTrackingService
@@ -283,7 +283,7 @@ To track telemetric data from an application it is required to react on events o
     }
     ```
 1. Create a new interface **IPageLifeCycleEvents** (*Project: Hanselman.Portable/Helpers*)
-    ```cs 
+    ```cs
     namespace Hanselman.Portable.Helpers
     {
         public interface IPageLifeCycleEvents
