@@ -7,6 +7,7 @@
 1. [Build integration](#build-integration)
 1. [HockeyApp integration in project](#hockeyapp-integration-in-project)
 1. [Release Management in VSTS](#release-management-in-vsts)
+1. [Build Enhancements for Release Pipeline](#build-enhancements-for-release-pipeline)
 
 ## Register to HockeyApp
 1. Go to the [HockeyApp](https://www.hockeyapp.net/) page
@@ -186,20 +187,223 @@ Todo Marc
 * Active ZipAlign
 
 ### Setup Assembly Versioning
-Todo Jan
-* Add Powershell to Reporting
-* Add PowerShel Task
-* Set Variables and Build Number Definition
-* Prepare are source files for Pattern d.d.d.d
+In this step the build is extended with an assembly versioning task. This task is required to ensure, that every build has its own unique and consecutive version number assigned to the final deployed assemblies.
+
+**Add Assembly Versioning Script**
+1. In the main repository create a new folder **\Build** on the root level.
+1. Add the powershell script [**AssemblyVersioning.ps1**](assets/exercise5/Build%20Scripts/AssemblyVersioning.ps1) to the **Build** folder and sync your changes.
+
+**Add and configure versioning build task**
+1. Navigate to the build definition that was created in  [**Exercise2**](exercise2.md) and move to the *edit* mode
+1. From the **Build** tab select *Add build step...* and add a new **PowerShell** build task (*Utility > PowerShell > Add*).
+1. Move the build task on top of all other tasks (drag and drop) and set the **Type** and **Script Path** as followed:  
+![Release_Google_Play_Service_Endpoint](images/exercise5/VSTS_Build_Assembly_Versioning_Task.png "Configure assembly versioning build task")
+1. To provide unique and consecutive version information for the versioning script it is required to change the default *Build number format*. From the **General** tab change the *Build number format* as followed:  
+```$(Build.DefinitionName)_$(MajorVersion).$(MinorVersion).$(date:yy)$(dayofyear)$(rev:.r)```
+1. The previously set *Build number format* contains two configurable build variables that have to be defined. From the **Variables** tab add two additional custom variables by selecting *Add variable*: 
+   * Name = **MajorVersion** / Value = **1**
+   * Name = **MinorVersion** / Value = **0**
+
+**Prepare source files**
+1. To automatically version all required source files by the versioning script, it is mandatory to adjust some of the default patterns.
+1. Find all *AndroidManifest.xml* files and set the versionCode and versionName to: ```android:versionCode="1" android:versionName="1.0.0"```
 
 ## Track Events in Application
-Todo Jan:
-* IEventTrackerService
-* EventTrackerService
-* ContentPageBase
-* ViewModelBase with ILifecycleEvents
-* Change base class for all views (xaml + namespace, code behind)
-* TwitterViewModel for Loading time
+To track telemetric data from an application it is required to react on events or measure metrics. This chapter describes all required steps to track the following data:
+* Application Lifecycle Page View Event Tracking (Appear / Disappear)
+* Application Metric Tracking (Duration Measurements)
+
+1. Open the visual studio solution *Hanselman.Forms*
+1. Create a new service interface **IEventTrackingService** (*Project: Hanselman.Portable/Helpers*)
+   ```cs 
+    namespace Hanselman.Portable.Helpers
+    {
+        public interface IEventTrackingService
+        {
+            void TrackEvent(string name, Dictionary<string, string> properties = null, Dictionary<string, double> measurements = null);
+        }
+    }
+    ```
+1. Create a new interface **IPageLifeCycleEvents** (*Project: Hanselman.Portable/Helpers*)
+   ```cs 
+    namespace Hanselman.Portable.Helpers
+    {
+        public interface IPageLifeCycleEvents
+        {
+            void OnAppearing();
+            void OnDisappearing();
+        }
+    }
+    ```
+1. Create a new service implementation **EventTrackingService** (*Project: Hanselman.Android*). 
+   * This service is responsible to forward application events to the the HockeyApp integration of the Microsoft Application Insights.
+    ```cs
+    [assembly: Dependency(typeof(HanselmanAndroid.Helpers.EventTrackingService))]
+    namespace HanselmanAndroid.Helpers
+    {
+        public class EventTrackingService : IEventTrackingService
+        {
+            public void TrackEvent(string name, Dictionary<string, string> properties = null, Dictionary<string, double> measurements = null)
+            {
+                MetricsManager.TrackEvent(name, properties, measurements);
+            }
+        }
+    }
+1. In the **MainActivity** class (*Hanselman.Android*) override the **OnResume** and **OnPause** methods.
+   * The telemetry tracking is only activated when the application is started. Otherwise it is stopped.
+    ```cs
+    protected override void OnResume()
+    {
+        base.OnResume();
+        Tracking.StartUsage(this);
+    }
+
+    protected override void OnPause()
+    {
+        base.OnPause();
+        Tracking.StopUsage(this);
+    }
+    ```
+1. Implement the **IPageLifeCycle** interface in the **BaseViewModel** (*Hanselman.Portable*).
+   ```cs
+    public class BaseViewModel : INotifyPropertyChanged, IPageLifeCycleEvents
+    {
+        public BaseViewModel()
+        {
+            try
+            {
+                EventTrackingService = DependencyService.Get<IEventTrackingService>();
+            }
+            catch (Exception) { } // Bad Hack! Use a proper IoC implementation instead! DependencyService is not initialized for unit tests
+       }
+   ```
+   ```cs
+    public virtual  void OnAppearing()
+    {
+    }
+
+    public virtual void OnDisappearing()
+    {
+    }
+   ```
+1. Add the **EventTrackingService** to the **BaseViewModel** implementation (*Hanselman.Portable*).
+   * Define a field and property to store the service instance:
+     ```cs
+        private IEventTrackingService eventTrackingService;
+
+        public bool CanLoadMore
+        {
+            get { return canLoadMore; }
+            set { SetProperty(ref canLoadMore, value); }
+        }
+
+        protected IEventTrackingService EventTrackingService
+        {
+            get
+            {
+                return eventTrackingService;
+            }
+
+            private set
+            {
+                eventTrackingService = value;
+            }
+        }
+     ```   
+   * Resolve the service from the service locator:
+     ```cs
+     public BaseViewModel()
+     {
+         EventTrackingService = DependencyService.Get<IEventTrackingService>();
+     }
+     ```
+1. Create a new base implementation **ContentPageBase** (*Project: Hanselman.Portable/Views*)
+   * This class will serve as base class for all content views. By adding a base implementation the service *EventTrackingService* can be managed from one place and provide telemetric data for multiple content view pages.
+    ```cs
+    namespace Hanselman.Portable.Views
+    {
+        public class ContentPageBase : ContentPage
+        {
+            private IEventTrackingService eventTrackingService;
+            private Stopwatch stopWatch;
+
+            public ContentPageBase()
+            {
+                eventTrackingService = DependencyService.Get<IEventTrackingService>();
+
+            }
+            protected override void OnAppearing()
+            {
+                base.OnAppearing();
+                if (eventTrackingService != null)
+                {
+                    eventTrackingService.TrackEvent("PageView", new Dictionary<string, string>() { { "View", this.GetType().Name } });
+                }
+                stopWatch = Stopwatch.StartNew();
+
+                var lifecycleEvent = this.BindingContext as IPageLifeCycleEvents;
+                if(lifecycleEvent != null)
+                {
+                    lifecycleEvent.OnAppearing();
+                }
+            }
+
+            protected override void OnDisappearing()
+            {
+                base.OnDisappearing();
+                if (eventTrackingService != null && stopWatch != null)
+                {
+                    stopWatch.Stop();
+                    eventTrackingService.TrackEvent("PageVisitDuration", new Dictionary<string, string> { { "View", this.GetType().Name } }, new Dictionary<string, double>() { {"Duration", stopWatch.ElapsedMilliseconds} });
+                    stopWatch = null;
+                }
+
+                var lifecycleEvent = this.BindingContext as IPageLifeCycleEvents;
+                if (lifecycleEvent != null)
+                {
+                    lifecycleEvent.OnDisappearing();
+                }
+            }
+    ```
+1. Change the base class for all Pages and Views (*Code behind classes*) to the new base class **ContentPageBase** instead of **ContentPage** (*Project: Hanselman.Portable/Views*)
+   * Example for AboutPage.cs
+     ```cs
+     public partial class AboutPage : ContentPageBase
+     ```
+1. Replace the page content type for all Pages with the new **ContentPageBase** implementation and add the required **namespace** for referencing ContentPageBase.
+   * Example for AboutPage.xaml
+        ```cs
+        <?xml version="1.0" encoding="utf-8" ?>
+        <base:ContentPageBase 
+                    xmlns="http://xamarin.com/schemas/2014/forms"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:controls="clr-namespace:Hanselman.Portable.Helpers;assembly=Hanselman.Portable"
+                    xmlns:base="clr-namespace:Hanselman.Portable.Views;assembly=Hanselman.Portable"
+                    x:Class="Hanselman.Portable.Views.AboutPage"
+                    Title="Scott Hanselman">
+    ```
+1. Extend the method **ExecuteLoadTweetsCommand** in the **TwitterViewModel** (*Hanselman.Portable*) with an additional tweet duration measurement that is sent to HockeyApp Application Insights for metric tracking.
+   * Start a new Stopwatch session at the beginning of the method:
+     ```cs
+     public async Task ExecuteLoadTweetsCommand()
+     {
+         var sw = Stopwatch.StartNew();
+         ...
+     ```
+   * Stop and track an event when the tweets finished loading:
+     ```cs
+     ...
+         await page.DisplayAlert("Error", "Unable to load tweets.", "OK");
+     }
+
+     sw.Stop();
+     if(EventTrackingService != null)
+     {
+         EventTrackingService.TrackEvent("TwitterLoading", measurements: new Dictionary<string, double>() { { "Duration", sw.ElapsedMilliseconds } });
+     }
+     sw = null;
+     ...
+     ```
 
 ## HockeyApp Application Insights Integration
 In order to analyse the event data, we can integrate the events from HockeyApp into an Instance of Application Insights. To do so, we need to create a new Application Insights instance in Azure.
