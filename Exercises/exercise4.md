@@ -114,6 +114,15 @@ private void TestMenuItem(string name)
 1. Go to Visual Studio to stop the current test case.<br/>
    ![Stop Test Recorder](images/exercise4/XamarinTestRecorderStop.png)
 
+## Fix Build for UI Tests
+Since the UI test assembly has a reference to the android project (to load the apk), the build on the hosted agent will fail because of the wrong JDK used by default.
+To solve this, we need to set the SDK version explicitely for the build task. Instead of having a task UI as in the android build task, we simply set the build parameter for the build.
+1. Edit the build definition
+1. Select the task **Build Solution /*test*.csproj**
+1. Add the following parameter as build argument
+   ```/p:JavaSdkDirectory=" C:\Program Files (x86)\Java\jdk1.8.0_102"```
+   ![Add Build Parameter](images/exercise4/AddBuildParameter.png)
+
 
 ## Relevant Links:
 * [NUnit](http://www.nunit.org/)

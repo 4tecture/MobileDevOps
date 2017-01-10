@@ -175,3 +175,67 @@ Now the following **Release Management** and **Build** order is configured:
 1. When all specified users have approved the new version, release management starts deployement to **Google Play store** automatically
 
 1. New version is online and all users of the app can update or download the new version
+
+## Build Enhancements for Release Pipeline
+
+### Setup KeyStore
+Todo Marc
+* Setup KeyStore
+* Create private Reporting
+* Use Keystore for Sigining
+* Active ZipAlign
+
+### Setup Assembly Versioning
+Todo Jan
+* Add Powershell to Reporting
+* Add PowerShel Task
+* Set Variables and Build Number Definition
+* Prepare are source files for Pattern d.d.d.d
+
+## Track Events in Application
+Todo Jan:
+* IEventTrackerService
+* EventTrackerService
+* ContentPageBase
+* ViewModelBase with ILifecycleEvents
+* Change base class for all views (xaml + namespace, code behind)
+* TwitterViewModel for Loading time
+
+## HockeyApp Application Insights Integration
+In order to analyse the event data, we can integrate the events from HockeyApp into an Instance of Application Insights. To do so, we need to create a new Application Insights instance in Azure.
+
+1. Go to the [Azure Portal](http://portal.azure.com) and log in with your account.
+1. Create a new resource of type Application Insights.
+1. Within the creation wizard, specificy the type to **HockeyApp bridge application**.<br/>
+![Creaste Application Insights instance](images/exercise5/ApplicationInsights_Creation.png) 
+   1. Use the API Key from your HockeyApp instance.
+   ![HockeyApp_Api_Key](images/exercise5/HockeyApp_Api_Key.png "Created Api-Key in HockeyApp settings")
+
+## Application Insights Analytics
+After we have successfully created the bridge to Application Insights, we can use the Analytics tools to query and analyse the reported events.
+
+1. Click on the Analytics icon in Application Insights.<br/>
+![Open Analytics](images/exercise5/OpenAnalytics.png "Open Analytics")
+1. Create a new Query tab and play around with the query language and rendering functions.
+![Create Query](images/exercise5/Analytics_CreateQueries.png "Create Query")
+  
+   You can start with the following queries:
+   ```
+    // Page Views within last 30 days
+    customEvents 
+    | where timestamp >= ago(30d)
+    | where name == "PageView"
+    | project View = customDimensions.View, timestamp 
+    | summarize count() by tostring(View)
+    | render piechart 
+   ```
+
+   ```
+    // Page Visit duration within last 30 days
+    customEvents 
+    | where timestamp >= ago(30d)
+    | where name == "PageVisitDuration"
+    | project View = customDimensions.View, Duration = customMeasurements.Duration, timestamp 
+    | summarize avg(todouble(Duration)) by tostring(View) 
+    | render barchart  
+   ```
