@@ -6,7 +6,9 @@ This repository and its content has been created for the training "Mobile DevOps
 
 ## Slides and Exercises
 
-You can [download a slide deck with related content from Onedrive](https://1drv.ms/p/s!AnByKdQdIw5KgifodS-DutFnfQjn).
+You can download a slide decks with related content from the following Links:
+* [DevOps Intro](https://4tecture.blob.core.windows.net/securedroplocation/DevOps.pdf?sv=2015-12-11&si=ReadOnly&sr=b&sig=WQN6WLIW8eWjJCc1bAbmo2wk8EIN7NeSewDGsAtN1Gg%3D)
+* [Mobile DevOps](https://4tecture.blob.core.windows.net/securedroplocation/MobileDevOps.pdf?sv=2015-12-11&si=ReadOnly&sr=b&sig=JAQKndjukcqQCwAs1%2FguoH9tUsltmH9E%2F2C1hPFjoW0%3D)
 
 **You find the exercises of the training in the [Exercises](Exercises) folder.**
 
