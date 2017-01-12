@@ -118,8 +118,8 @@
     }
     ```
 
-## Change the TweetViewModel
-1. Change the affected rows of the **TweetViewModel** to use the new ManagerFactory
+## Change the TwitterViewModel
+1. Change the affected rows of the **TwitterViewModel** to use the new ManagerFactory
 1. Add a private field<br/>
 
    ```cs
