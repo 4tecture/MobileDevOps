@@ -61,6 +61,7 @@ Install the **HockeyApp-Extension** from the **VSTS Marketplace.**
 ![VSTS_Marketplace_HockeyApp](images/exercise5/VSTS_Build_Add_Hockey_App_Task.png "Add HockeyApp task to build definition")
 
 The added task needs a **HockeyApp Connection**.
+
 1. Click on **Manage**, right beside the **HockeyApp Connection** input
 1. Add new service endpoint
 1. Choose **HockeyApp**
