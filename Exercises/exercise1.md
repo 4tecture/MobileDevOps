@@ -183,7 +183,7 @@ public class AlbumViewModel : ViewModelBase
    ![Xamarin Update](images/exercise1/xamarin-download.png)
 
 ## Delete Visual Studio ComponentModelCache
-If you encounter error messages when creating or opening a Xamarin project (e.g. "A problem was encountered creating the sub project 'HelloAndroid.Droid'. Attempted to access a missing method."): try to remove the ComponentModelCache:
+If you encounter error messages when creating or opening a Xamarin project (e.g. "A problem was encountered creating the sub project 'HelloXamarin.Droid'. Attempted to access a missing method."): try to remove the ComponentModelCache:
 
 1. Close Visual Studio
 1. Open file explorer in "%localappdata%\Microsoft\VisualStudio\14.0\ComponentModelCache"
